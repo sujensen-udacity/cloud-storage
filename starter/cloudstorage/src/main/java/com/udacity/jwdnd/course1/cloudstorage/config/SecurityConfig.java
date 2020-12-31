@@ -21,13 +21,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         // Restrict unauthorized users from accessing pages other than login and signup
         http.authorizeRequests()
-                .antMatchers("/login", "/signup").permitAll()
+                .antMatchers("/signup").permitAll()
                 .anyRequest().authenticated();
 
         // Login page
         http.formLogin()
                 .loginPage("/login").permitAll()
-                .defaultSuccessUrl("/home", true);;
+                .defaultSuccessUrl("/home", true);
+
+        http.csrf().disable();
+        http.logout().permitAll();
     }
 
 }

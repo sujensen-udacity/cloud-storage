@@ -56,7 +56,7 @@ public class HomePage {
         PageFactory.initElements(driver, this);
     }
 
-    public void logoutAlready() {
+    public void logoutNow() {
         logoutButton.click();
     }
 

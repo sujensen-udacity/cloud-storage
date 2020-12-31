@@ -38,4 +38,26 @@ class CloudStorageApplicationTests {
 		Assertions.assertEquals("Login", driver.getTitle());
 	}
 
+	// Verify that an unauthorized user can only access the login and signup pages
+
+	// Sign up a new user, log in, verify that the home page is accessible, log out,
+	// and verify that the home page is no longer accessible
+
+	// Create a note, and verify it is displayed
+
+	// Edit an existing note, and verify that the changes are displayed
+
+	// Delete a note, and verify that the note is no longer displayed
+
+	// Create a set of credentials, verify they are displayed, and verify that the displayed
+	// password is encrypted
+
+	// View an existing set of credentials, verify that the viewable password is unencrypted,
+	// edit the credentials, and verify that the changes are displayed.
+
+	// Delete an existing set of credentials, and verify that the credentials are no longer
+	// displayed.
+
+
+
 }

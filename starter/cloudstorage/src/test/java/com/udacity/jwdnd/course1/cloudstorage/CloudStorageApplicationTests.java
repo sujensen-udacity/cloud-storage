@@ -69,8 +69,10 @@ class CloudStorageApplicationTests {
 
 
 
-	// Sign up a new user, log in, verify that the home page is accessible, log out,
-	// and verify that the home page is no longer accessible
+	/*
+	Sign up a new user, log in, verify that the home page is accessible, log out,
+	and verify that the home page is no longer accessible
+	 */
 	@Test
 	public void testAllUserAccess() {
 

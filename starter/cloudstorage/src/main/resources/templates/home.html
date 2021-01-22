@@ -52,7 +52,7 @@
                                 <tr>
                                     <td>
                                         <a th:href="@{/download(fileName=${file.fileName})}" target="_blank" class="btn btn-success">View</a>
-                                        <a th:href="@{/delete(fileName=${file.fileName})}"  class="btn btn-danger">Delete</a>
+                                        <a th:href="@{/deleteFile(fileName=${file.fileName})}"  class="btn btn-danger">Delete</a>
                                     </td>
                                     <th th:text="${file.fileName}" scope="row">ExampleFile.txt</th>
                                 </tr>
@@ -74,14 +74,16 @@
                                         <th style="width: 60%" scope="col">Description</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            <button id="edit-note-button" type="button" class="btn btn-success">Edit</button>
-                                            <a id="delete-note-button" class="btn btn-danger">Delete</a>
+                                <tbody th:each="note : ${storedNotes}">
+                                    <tr id="tbody-row">
+                                        <td id="row-buttons">
+                                            <button id="edit-note-button" type="button" class="btn btn-success"
+                                                    th:data-1="${note.noteId}" th:data-2="${note.noteTitle}" th:data-3="${note.noteText}"
+                                                    onclick="showNoteModal(this.getAttribute('data-1'),this.getAttribute('data-2'),this.getAttribute('data-3'));">Edit</button>
+                                            <a id="delete-note-button" th:href="@{/deleteNote(noteId=${note.noteId})}" class="btn btn-danger">Delete</a>
                                         </td>
-                                        <th scope="row">Example Note Title</th>
-                                        <td>Example Note Description </td>
+                                        <th th:text="${note.noteTitle}" scope="row">Example Note Title</th>
+                                        <td id="note-desc" th:text="${note.noteText}">Example Note Description </td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -97,22 +99,22 @@
                                         </button>
                                     </div>
                                     <div class="modal-body">
-                                        <form action="#" method="POST">
+                                        <form th:object="${noteForm}" action="#" method="POST" th:action="@{/note-add-edit}">
                                             <input type="hidden" name="noteId" id="note-id">
                                             <div class="form-group">
                                                 <label for="note-title" class="col-form-label">Title</label>
-                                                <input type="text" name= "noteTitle" class="form-control" id="note-title" maxlength="20" required>
+                                                <input th:field="*{noteTitle}" type="text" name="noteTitle" class="form-control" id="note-title" maxlength="20" required>
                                             </div>
                                             <div class="form-group">
                                                 <label for="note-description" class="col-form-label">Description</label>
-                                                <textarea class="form-control" name="noteDescription" id="note-description" rows="5" maxlength="1000" required></textarea>
+                                                <textarea th:field="*{noteText}" class="form-control" name="noteDescription" id="note-description" rows="5" maxlength="1000" required></textarea>
                                             </div>
                                             <button id="note-submit" type="submit" class="d-none"></button>
                                         </form>
                                     </div>
                                     <div class="modal-footer">
                                         <button id="note-close-button" type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                        <button id="note-save-changes-button" type="button" class="btn btn-primary" onclick="$('#noteSubmit').click();">Save changes</button>
+                                        <button id="note-save-changes-button" type="button" class="btn btn-primary" onclick="$('#note-submit').click();">Save changes</button>
                                     </div>
                                 </div>
                             </div>
@@ -176,7 +178,7 @@
                                     </div>
                                     <div class="modal-footer">
                                         <button id="credential-close-button" type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                        <button id="credential-save-changes-button" type="button" class="btn btn-primary" onclick="$('#credentialSubmit').click();">Save changes</button>
+                                        <button id="credential-save-changes-button" type="button" class="btn btn-primary" onclick="$('#credential-submit').click();">Save changes</button>
                                     </div>
                                 </div>
                             </div>

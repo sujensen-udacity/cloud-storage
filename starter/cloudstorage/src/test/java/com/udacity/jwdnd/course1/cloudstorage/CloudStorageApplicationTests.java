@@ -1,12 +1,17 @@
 package com.udacity.jwdnd.course1.cloudstorage;
 
+import com.udacity.jwdnd.course1.cloudstorage.model.NoteForm;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.test.annotation.DirtiesContext;
 
+import java.util.List;
+
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class CloudStorageApplicationTests {
 
@@ -97,11 +102,105 @@ class CloudStorageApplicationTests {
 
 	}
 
-	// Create a note, and verify it is displayed
+	/*
+	Create a note, and verify it is displayed
+	 */
+	@Test
+	public void testCreateNote() throws InterruptedException {
 
-	// Edit an existing note, and verify that the changes are displayed
+		// Sign up Bob
+		driver.get("http://localhost:" + port + "/signup");
+		signupPage.signupNow("Robinson", "Crusoe", "Bob", "foobar");
 
-	// Delete a note, and verify that the note is no longer displayed
+		// Log in Bob
+		driver.get("http://localhost:" + port + "/login");
+		loginPage.loginNow("Bob", "foobar");
+
+		// Create a note
+		driver.get("http://localhost:" + port + "/home");
+		homePage.addNote("Shopping list", "Eggs milk cheese");
+
+		// Click the success button to go back to home page
+		resultPage.successClick();
+
+		// Verify it is displayed
+		List<NoteForm> notes = homePage.getNotes();
+		Assertions.assertEquals(1, notes.size());
+		Assertions.assertEquals("Shopping list", notes.get(0).getNoteTitle());
+		Assertions.assertEquals("Eggs milk cheese", notes.get(0).getNoteText());
+
+	}
+
+	/*
+	Edit an existing note, and verify that the changes are displayed
+	 */
+	@Test
+	public void testEditNote() throws InterruptedException {
+
+		// Sign up Bob
+		driver.get("http://localhost:" + port + "/signup");
+		signupPage.signupNow("Robinson", "Crusoe", "Bob", "foobar");
+
+		// Log in Bob
+		driver.get("http://localhost:" + port + "/login");
+		loginPage.loginNow("Bob", "foobar");
+
+		// Create a note
+		driver.get("http://localhost:" + port + "/home");
+		homePage.addNote("Shopping list", "Eggs milk cheese");
+
+		// Click the success button to go back to home page
+		resultPage.successClick();
+
+		// Edit that note
+		homePage.editNote("Shopping list", "New list", "Apples oranges bananas");
+
+		// Click the success button to go back to home page
+		resultPage.successClick();
+
+		// Verify it is displayed
+		List<NoteForm> notes = homePage.getNotes();
+		Assertions.assertEquals(1, notes.size());
+		Assertions.assertEquals("New list", notes.get(0).getNoteTitle());
+		Assertions.assertEquals("Apples oranges bananas", notes.get(0).getNoteText());
+	}
+
+	/*
+	Delete a note, and verify that the note is no longer displayed
+	 */
+	@Test
+	public void testDeleteNote() throws InterruptedException {
+
+		// Sign up Bob
+		driver.get("http://localhost:" + port + "/signup");
+		signupPage.signupNow("Robinson", "Crusoe", "Bob", "foobar");
+
+		// Log in Bob
+		driver.get("http://localhost:" + port + "/login");
+		loginPage.loginNow("Bob", "foobar");
+
+		// Create a note
+		driver.get("http://localhost:" + port + "/home");
+		homePage.addNote("Shopping list", "Eggs milk cheese");
+
+		// Click the success button to go back to home page
+		resultPage.successClick();
+
+		// Verify there is one note
+		List<NoteForm> notes = homePage.getNotes();
+		Assertions.assertEquals(1, notes.size());
+
+		// Delete that note
+		homePage.deleteNote("Shopping list");
+
+		// Click the success button to go back to home page
+		resultPage.successClick();
+
+		// Verify that there are no notes
+		List<NoteForm> emptyNotes = homePage.getNotes();
+		Assertions.assertEquals(0, emptyNotes.size());
+
+	}
 
 	// Create a set of credentials, verify they are displayed, and verify that the displayed
 	// password is encrypted

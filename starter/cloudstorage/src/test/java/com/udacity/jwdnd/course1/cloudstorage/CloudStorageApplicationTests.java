@@ -69,7 +69,6 @@ class CloudStorageApplicationTests {
         // Redirected to the Login page
         driver.get("http://localhost:" + this.port + "/result");
         Assertions.assertEquals("Login", driver.getTitle());
-
     }
 
 
@@ -98,7 +97,6 @@ class CloudStorageApplicationTests {
         // Verify the home page redirects to the login page
         driver.get("http://localhost:" + this.port + "/home");
         Assertions.assertEquals("Login", driver.getTitle());
-
     }
 
     /*
@@ -127,7 +125,6 @@ class CloudStorageApplicationTests {
         Assertions.assertEquals(1, notes.size());
         Assertions.assertEquals("Shopping list", notes.get(0).getNoteTitle());
         Assertions.assertEquals("Eggs milk cheese", notes.get(0).getNoteText());
-
     }
 
     /*
@@ -260,7 +257,6 @@ class CloudStorageApplicationTests {
         // On the home page, what is the value of Bob's first password, encrypted?
         List<CredForm> displayedCreds = homePage.getCreds();
         String bobsFirstPasswordEncrypted = displayedCreds.get(0).getCredPassword();
-        System.out.println("bobsFirstPasswordEncrypted = " + bobsFirstPasswordEncrypted);
 
         // Click to view that credential, and verify the unencrypted password is shown
         String modalDisplayedPassword = homePage.viewCredPassword(bobsSite);
@@ -279,7 +275,6 @@ class CloudStorageApplicationTests {
 
         // Verify that the displayed password is encrypted and changed
         String bobsSecondPasswordEncrypted = displayedCreds.get(0).getCredPassword();
-        System.out.println("bobsSecondPasswordEncrypted = " + bobsSecondPasswordEncrypted);
         Assertions.assertNotEquals(bobsSecondPassword, bobsSecondPasswordEncrypted);
         Assertions.assertNotEquals(bobsFirstPasswordEncrypted, bobsSecondPasswordEncrypted);
 

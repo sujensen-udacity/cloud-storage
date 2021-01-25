@@ -15,9 +15,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.*;
+import java.io.IOException;
 import java.security.Principal;
-import java.util.List;
 
 @Controller
 @RequestMapping
@@ -48,14 +47,6 @@ public class HomeController {
         // Get the latest list of notes
         model.addAttribute("storedNotes", noteService.getNotes(principal.getName()));
         // Get the latest list of creds
-        List<CredForm> myList = credService.getCreds(principal.getName());
-        for (CredForm cf : myList) {
-            System.out.println("HEY next cf");
-            System.out.println("...id = " + cf.getCredentialId());
-            System.out.println("...url = " + cf.getCredUrl());
-            System.out.println("...username = " + cf.getCredUsername());
-            System.out.println("...password = " + cf.getCredPassword());
-        }
         model.addAttribute("storedCreds", credService.getCreds(principal.getName()));
         model.addAttribute("encryptionService", encryptionService);
         return "home";
@@ -67,7 +58,7 @@ public class HomeController {
         File newFile = fileStorageService.getFile(principal.getName(), fileName);
         InputStreamResource resource = new InputStreamResource(newFile.getFileData());
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION,"attachment; filename=\"" + fileName + "\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
                 .contentLength(Long.valueOf(newFile.getFileSize()))
                 .contentType(MediaType.parseMediaType(newFile.getContentType()))
                 .body(resource);
@@ -76,7 +67,6 @@ public class HomeController {
     @GetMapping("/deleteFile")
     public String deleteFile(@RequestParam String fileName, Principal principal, Model model) {
 
-        String resultError = null;
         // Get the authenticated user name
         User user = userService.getUser(principal.getName());
         // Delete the file for that user
@@ -87,7 +77,6 @@ public class HomeController {
     @GetMapping("/deleteNote")
     public String deleteNote(@RequestParam Integer noteId, Principal principal, Model model) {
 
-        String resultError = null;
         // Get the authenticated user name
         User user = userService.getUser(principal.getName());
         // Delete the note for that user
@@ -98,7 +87,6 @@ public class HomeController {
     @GetMapping("/deleteCred")
     public String deleteCred(@RequestParam Integer credId, Principal principal, Model model) {
 
-        String resultError = null;
         // Get the authenticated user name
         User user = userService.getUser(principal.getName());
         // Delete the note for that user
@@ -113,6 +101,8 @@ public class HomeController {
         model.addAttribute("storedFiles", fileStorageService.getFiles(principal.getName()));
         // Get the latest list of notes
         model.addAttribute("storedNotes", noteService.getNotes(principal.getName()));
+        // Get the latest list of creds
+        model.addAttribute("storedCreds", credService.getCreds(principal.getName()));
         return "home";
     }
 
@@ -124,7 +114,6 @@ public class HomeController {
         // Get the authenticated user name
         User user = userService.getUser(principal.getName());
         // Does the note already have an ID?
-        System.out.println("check if the note has an id! " + noteForm.getNoteId());
         if (!noteForm.getNoteId().isEmpty()) {
             // Edit the note, catching any error as a String result.
             resultError = noteService.editNote(noteForm, user.getUsername());
@@ -142,23 +131,15 @@ public class HomeController {
     @PostMapping("/cred-add-edit")
     public String addCred(@ModelAttribute("credForm") CredForm credForm, Principal principal, Model model) {
 
-        System.out.println("HEY starting HomeController.addCred");
-        System.out.println(".. id = " + credForm.getCredentialId());
-        System.out.println(".. url = " + credForm.getCredUrl());
-        System.out.println(".. username = " + credForm.getCredUsername());
-        System.out.println(".. password = " + credForm.getCredPassword() + ", class = " + credForm.getCredPassword().getClass());
         // Keep track of any errors from the services, which are passed via the model to the results page
         String resultError = null;
         // Get the authenticated user name
         User user = userService.getUser(principal.getName());
         // Does the cred already have an ID?
-        System.out.println("check if the cred has an id? " + credForm.getCredentialId());
         if (!credForm.getCredentialId().isEmpty()) {
             // Edit the cred, catching any error as a String result.
-            System.out.println("No the cred id is not empty!");
             resultError = credService.editCred(credForm, user.getUsername());
         } else {
-            System.out.println("YEAH the cred it is empty!");
             // Add the note, catching any error as a String result.
             resultError = credService.addCred(credForm, user.getUsername());
         }

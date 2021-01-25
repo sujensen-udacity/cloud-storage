@@ -1,7 +1,6 @@
 package com.udacity.jwdnd.course1.cloudstorage.mapper;
 
 import com.udacity.jwdnd.course1.cloudstorage.model.CredForm;
-import com.udacity.jwdnd.course1.cloudstorage.model.NoteForm;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;

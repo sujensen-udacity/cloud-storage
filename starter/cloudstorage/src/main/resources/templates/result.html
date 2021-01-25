@@ -14,10 +14,6 @@
                 <h1 class="display-5">Success</h1>
                 <span >Your changes were successfully saved. Click <a id="result-success-link" th:href="@{/home}">here</a> to continue.</span>
             </div>
-            <!--<div th:unless="${resultError} == null" class="alert alert-danger fill-parent">
-                <h1 class="display-5">Error</h1>
-                <span>Your changes were not saved. Click <a th:href="@{/home}">here</a> to continue.</span>
-            </div>-->
             <div th:unless="${resultError} == null" class="alert alert-danger fill-parent">
                 <h1 class="display-5">Error</h1>
                 <span th:text="${resultError}">Example Error Message</span>

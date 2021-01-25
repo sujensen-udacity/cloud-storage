@@ -29,7 +29,6 @@ public class HomePage {
     @FindBy(id = "note-tbody-row")
     private List<WebElement> noteTbodyRows;
 
-
     // Note tab modal elements
     @FindBy(id = "note-title")
     private WebElement noteTitle;
@@ -80,10 +79,8 @@ public class HomePage {
 
         navNotes.click();
         Thread.sleep(1000);
-
         addNoteButton.click();
         Thread.sleep(1000);
-
         noteTitle.sendKeys(title);
         noteDescription.sendKeys(desc);
         noteSaveChangesButton.click();
@@ -95,7 +92,6 @@ public class HomePage {
         List<NoteForm> retList = new ArrayList<>();
         navNotes.click();
         Thread.sleep(1000);
-
         for (WebElement row : noteTbodyRows) {
             WebElement th = row.findElement(By.tagName("th"));
             String thText = th.getAttribute("innerText");
@@ -107,9 +103,9 @@ public class HomePage {
     }
 
     public void editNote(String origTitle, String newTitle, String newDesc) throws InterruptedException {
+
         navNotes.click();
         Thread.sleep(1000);
-
         // Find note with origTitle
         for (WebElement row : noteTbodyRows) {
             WebElement th = row.findElement(By.tagName("th"));
@@ -136,35 +132,29 @@ public class HomePage {
     }
 
     public void deleteNote(String origTitle) throws InterruptedException {
+
         navNotes.click();
         Thread.sleep(1000);
-
         // Find note with origTitle
         for (WebElement row : noteTbodyRows) {
             WebElement th = row.findElement(By.tagName("th"));
             String thText = th.getAttribute("innerText");
             if (thText.equals(origTitle)) {
-                // Click edit button
+                // Click delete button
                 WebElement buttons = row.findElement(By.id("note-row-buttons"));
                 WebElement deleteButton = buttons.findElement(By.id("delete-note-button"));
                 deleteButton.click();
                 Thread.sleep(1000);
             }
         }
-
-
-
-
     }
 
     public void addCred(String url, String username, String password) throws InterruptedException {
 
         navCreds.click();
         Thread.sleep(1000);
-
         addCredButton.click();
         Thread.sleep(1000);
-
         credUrl.sendKeys(url);
         credUsername.sendKeys(username);
         credPassword.sendKeys(password);
@@ -177,14 +167,14 @@ public class HomePage {
         List<CredForm> retList = new ArrayList<>();
         navCreds.click();
         Thread.sleep(1000);
-
         for (WebElement row : credTbodyRows) {
+            // url
             WebElement th = row.findElement(By.tagName("th"));
             String thTextUrl = th.getAttribute("innerText");
-
+            // username
             WebElement td1 = row.findElement(By.id("cred-un"));
             String tdTextUsername = td1.getAttribute("innerText");
-
+            // password
             WebElement td2 = row.findElement(By.id("cred-pw"));
             String tdTextPassword = td2.getAttribute("innerText");
             retList.add(new CredForm(null, thTextUrl, tdTextUsername, null, tdTextPassword, null));
@@ -193,9 +183,9 @@ public class HomePage {
     }
 
     public String viewCredPassword(String origUrl) throws InterruptedException {
+
         navCreds.click();
         Thread.sleep(1000);
-
         String retString = null;
         // Find cred with origUrl
         for (WebElement row : credTbodyRows) {
@@ -217,9 +207,9 @@ public class HomePage {
     }
 
     public void editCred(String origUrl, String newUrl, String newUsername, String newPassword) throws InterruptedException {
+
         navCreds.click();
         Thread.sleep(1000);
-
         // Find cred with origUrl
         for (WebElement row : credTbodyRows) {
             WebElement th = row.findElement(By.tagName("th"));
@@ -250,15 +240,15 @@ public class HomePage {
     }
 
     public void deleteCred(String origUrl) throws InterruptedException {
+
         navCreds.click();
         Thread.sleep(1000);
-
         // Find cred with origUrl
         for (WebElement row : credTbodyRows) {
             WebElement th = row.findElement(By.tagName("th"));
             String thTextUrl = th.getAttribute("innerText");
             if (thTextUrl.equals(origUrl)) {
-                // Click edit button
+                // Click delete button
                 WebElement buttons = row.findElement(By.id("cred-row-buttons"));
                 WebElement deleteButton = buttons.findElement(By.id("delete-cred-button"));
                 deleteButton.click();

@@ -2,13 +2,11 @@ package com.udacity.jwdnd.course1.cloudstorage.services;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
@@ -18,6 +16,10 @@ import java.util.Random;
 public class EncryptionService {
     private Logger logger = LoggerFactory.getLogger(EncryptionService.class);
 
+    /*
+    I added this method, before I realized I could reuse the provided class, HashService!
+    I think my method is okay, though.
+     */
     public String generateSalt() {
 
         // Create a random string of size 16
@@ -25,7 +27,7 @@ public class EncryptionService {
         Random random = new Random();
         int x = 0;
         while (x < 16) {
-            char randomChar = (char)(random.nextInt(26) + 'a');
+            char randomChar = (char) (random.nextInt(26) + 'a');
             sb.append(randomChar);
             x += 1;
         }

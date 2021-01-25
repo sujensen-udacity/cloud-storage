@@ -21,6 +21,7 @@ public class CredService {
     }
 
     public String editCred(CredForm credForm, String username) {
+
         Integer userId = userMapper.getUserId(username);
         Integer credId = Integer.valueOf(credForm.getCredentialId());
 
@@ -34,11 +35,12 @@ public class CredService {
 
         credForm.setUserId(userId);
         credMapper.update(userId, credId, proposedUrl, proposedUsername, proposedEncryptedPassword);
+        // TODO perhaps a user shouldn't be allowed to have two credentials with the same URL?  Not a clear requirement.
         return null;
     }
 
     public String addCred(CredForm credForm, String username) {
-        System.out.println("Adding cred");
+
         Integer userId = userMapper.getUserId(username);
 
         credForm.setUserId(userId);
@@ -47,6 +49,7 @@ public class CredService {
         String encryptedPassword = encryptionService.encryptValue(credForm.getCredPassword(), newSalt);
         credForm.setCredPassword(encryptedPassword);
         credMapper.insert(credForm);
+        // TODO perhaps a user shouldn't be allowed to have two credentials with the same URL?  Not a clear requirement.
         return null;
     }
 
@@ -58,6 +61,7 @@ public class CredService {
     }
 
     public List<CredForm> getCreds(String username) {
+
         Integer userId = userMapper.getUserId(username);
         List<CredForm> dbCreds = credMapper.getCreds(userId);
         return dbCreds;

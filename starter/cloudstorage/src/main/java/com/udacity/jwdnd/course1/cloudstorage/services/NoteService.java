@@ -19,7 +19,7 @@ public class NoteService {
     }
 
     public String editNote(NoteForm noteForm, String username) {
-        System.out.println("In NoteService editNote method");
+
         Integer userId = userMapper.getUserId(username);
         Integer noteId = Integer.valueOf(noteForm.getNoteId());
 
@@ -47,8 +47,7 @@ public class NoteService {
     }
 
     public String addNote(NoteForm noteForm, String username) {
-        System.out.println("In NoteService addNote method");
-        System.out.println("  noteForm text = " + noteForm.getNoteText());
+
         Integer userId = userMapper.getUserId(username);
 
         // Is the title an empty string, once whitespace is removed?
@@ -69,6 +68,7 @@ public class NoteService {
     }
 
     public List<NoteForm> getNotes(String username) {
+
         Integer userId = userMapper.getUserId(username);
         List<NoteForm> notes = noteMapper.getNotes(userId);
         return notes;

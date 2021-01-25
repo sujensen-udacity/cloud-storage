@@ -1,5 +1,6 @@
 package com.udacity.jwdnd.course1.cloudstorage;
 
+import com.udacity.jwdnd.course1.cloudstorage.model.CredForm;
 import com.udacity.jwdnd.course1.cloudstorage.model.NoteForm;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.*;
@@ -15,202 +16,316 @@ import java.util.List;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class CloudStorageApplicationTests {
 
-	@LocalServerPort
-	private int port;
+    @LocalServerPort
+    private int port;
 
-	private WebDriver driver;
-	private SignupPage signupPage;
-	private LoginPage loginPage;
-	private HomePage homePage;
-	private ResultPage resultPage;
+    private WebDriver driver;
+    private SignupPage signupPage;
+    private LoginPage loginPage;
+    private HomePage homePage;
+    private ResultPage resultPage;
 
-	@BeforeAll
-	static void beforeAll() {
-		WebDriverManager.chromedriver().setup();
-	}
+    @BeforeAll
+    static void beforeAll() {
+        WebDriverManager.chromedriver().setup();
+    }
 
-	@BeforeEach
-	public void beforeEach() {
+    @BeforeEach
+    public void beforeEach() {
 
-		this.driver = new ChromeDriver();
-		signupPage = new SignupPage(driver);
-		loginPage = new LoginPage(driver);
-		homePage = new HomePage(driver);
-		resultPage = new ResultPage(driver);
-	}
+        this.driver = new ChromeDriver();
+        signupPage = new SignupPage(driver);
+        loginPage = new LoginPage(driver);
+        homePage = new HomePage(driver);
+        resultPage = new ResultPage(driver);
+    }
 
-	@AfterEach
-	public void afterEach() {
-		if (this.driver != null) {
-			driver.quit();
-		}
-	}
-
-
-
-	/*
-	Verify that an unauthorized user can only access the login and signup pages
-	 */
-	@Test
-	public void testUnauthUserAccess() {
-
-		// Successfully reach the Login page
-		driver.get("http://localhost:" + this.port + "/login");
-		Assertions.assertEquals("Login", driver.getTitle());
-
-		// Successfully reach the Sign Up page
-		driver.get("http://localhost:" + this.port + "/signup");
-		Assertions.assertEquals("Sign Up", driver.getTitle());
-
-		// Redirected to the Login page
-		driver.get("http://localhost:" + this.port + "/home");
-		Assertions.assertEquals("Login", driver.getTitle());
-
-		// Redirected to the Login page
-		driver.get("http://localhost:" + this.port + "/result");
-		Assertions.assertEquals("Login", driver.getTitle());
-
-	}
+    @AfterEach
+    public void afterEach() {
+        if (this.driver != null) {
+            driver.quit();
+        }
+    }
 
 
+    /*
+    Verify that an unauthorized user can only access the login and signup pages
+     */
+    @Test
+    public void testUnauthUserAccess() {
 
-	/*
-	Sign up a new user, log in, verify that the home page is accessible, log out,
-	and verify that the home page is no longer accessible
-	 */
-	@Test
-	public void testAllUserAccess() {
+        // Successfully reach the Login page
+        driver.get("http://localhost:" + this.port + "/login");
+        Assertions.assertEquals("Login", driver.getTitle());
 
-		// Sign up Bob
-		driver.get("http://localhost:" + port + "/signup");
-		signupPage.signupNow("Robinson", "Crusoe", "Bob", "foobar");
+        // Successfully reach the Sign Up page
+        driver.get("http://localhost:" + this.port + "/signup");
+        Assertions.assertEquals("Sign Up", driver.getTitle());
 
-		// Log in Bob
-		driver.get("http://localhost:" + port + "/login");
-		loginPage.loginNow("Bob", "foobar");
+        // Redirected to the Login page
+        driver.get("http://localhost:" + this.port + "/home");
+        Assertions.assertEquals("Login", driver.getTitle());
 
-		// Verify Bob can get to the home page
-		driver.get("http://localhost:" + this.port + "/home");
-		Assertions.assertEquals("Home", driver.getTitle());
+        // Redirected to the Login page
+        driver.get("http://localhost:" + this.port + "/result");
+        Assertions.assertEquals("Login", driver.getTitle());
 
-		// Log out Bob
-		homePage.logoutNow();
+    }
 
-		// Verify the home page redirects to the login page
-		driver.get("http://localhost:" + this.port + "/home");
-		Assertions.assertEquals("Login", driver.getTitle());
 
-	}
+    /*
+    Sign up a new user, log in, verify that the home page is accessible, log out,
+    and verify that the home page is no longer accessible
+     */
+    @Test
+    public void testAllUserAccess() {
 
-	/*
-	Create a note, and verify it is displayed
-	 */
-	@Test
-	public void testCreateNote() throws InterruptedException {
+        // Sign up Bob
+        driver.get("http://localhost:" + port + "/signup");
+        signupPage.signupNow("Robinson", "Crusoe", "Bob", "foobar");
 
-		// Sign up Bob
-		driver.get("http://localhost:" + port + "/signup");
-		signupPage.signupNow("Robinson", "Crusoe", "Bob", "foobar");
+        // Log in Bob
+        driver.get("http://localhost:" + port + "/login");
+        loginPage.loginNow("Bob", "foobar");
 
-		// Log in Bob
-		driver.get("http://localhost:" + port + "/login");
-		loginPage.loginNow("Bob", "foobar");
+        // Verify Bob can get to the home page
+        driver.get("http://localhost:" + this.port + "/home");
+        Assertions.assertEquals("Home", driver.getTitle());
 
-		// Create a note
-		driver.get("http://localhost:" + port + "/home");
-		homePage.addNote("Shopping list", "Eggs milk cheese");
+        // Log out Bob
+        homePage.logoutNow();
 
-		// Click the success button to go back to home page
-		resultPage.successClick();
+        // Verify the home page redirects to the login page
+        driver.get("http://localhost:" + this.port + "/home");
+        Assertions.assertEquals("Login", driver.getTitle());
 
-		// Verify it is displayed
-		List<NoteForm> notes = homePage.getNotes();
-		Assertions.assertEquals(1, notes.size());
-		Assertions.assertEquals("Shopping list", notes.get(0).getNoteTitle());
-		Assertions.assertEquals("Eggs milk cheese", notes.get(0).getNoteText());
+    }
 
-	}
+    /*
+    Create a note, and verify it is displayed
+     */
+    @Test
+    public void testCreateNote() throws InterruptedException {
 
-	/*
-	Edit an existing note, and verify that the changes are displayed
-	 */
-	@Test
-	public void testEditNote() throws InterruptedException {
+        // Sign up Bob
+        driver.get("http://localhost:" + port + "/signup");
+        signupPage.signupNow("Robinson", "Crusoe", "Bob", "foobar");
 
-		// Sign up Bob
-		driver.get("http://localhost:" + port + "/signup");
-		signupPage.signupNow("Robinson", "Crusoe", "Bob", "foobar");
+        // Log in Bob
+        driver.get("http://localhost:" + port + "/login");
+        loginPage.loginNow("Bob", "foobar");
 
-		// Log in Bob
-		driver.get("http://localhost:" + port + "/login");
-		loginPage.loginNow("Bob", "foobar");
+        // Create a note
+        driver.get("http://localhost:" + port + "/home");
+        homePage.addNote("Shopping list", "Eggs milk cheese");
 
-		// Create a note
-		driver.get("http://localhost:" + port + "/home");
-		homePage.addNote("Shopping list", "Eggs milk cheese");
+        // Click the success button to go back to home page
+        resultPage.successClick();
 
-		// Click the success button to go back to home page
-		resultPage.successClick();
+        // Verify it is displayed
+        List<NoteForm> notes = homePage.getNotes();
+        Assertions.assertEquals(1, notes.size());
+        Assertions.assertEquals("Shopping list", notes.get(0).getNoteTitle());
+        Assertions.assertEquals("Eggs milk cheese", notes.get(0).getNoteText());
 
-		// Edit that note
-		homePage.editNote("Shopping list", "New list", "Apples oranges bananas");
+    }
 
-		// Click the success button to go back to home page
-		resultPage.successClick();
+    /*
+    Edit an existing note, and verify that the changes are displayed
+     */
+    @Test
+    public void testEditNote() throws InterruptedException {
 
-		// Verify it is displayed
-		List<NoteForm> notes = homePage.getNotes();
-		Assertions.assertEquals(1, notes.size());
-		Assertions.assertEquals("New list", notes.get(0).getNoteTitle());
-		Assertions.assertEquals("Apples oranges bananas", notes.get(0).getNoteText());
-	}
+        // Sign up Bob
+        driver.get("http://localhost:" + port + "/signup");
+        signupPage.signupNow("Robinson", "Crusoe", "Bob", "foobar");
 
-	/*
-	Delete a note, and verify that the note is no longer displayed
-	 */
-	@Test
-	public void testDeleteNote() throws InterruptedException {
+        // Log in Bob
+        driver.get("http://localhost:" + port + "/login");
+        loginPage.loginNow("Bob", "foobar");
 
-		// Sign up Bob
-		driver.get("http://localhost:" + port + "/signup");
-		signupPage.signupNow("Robinson", "Crusoe", "Bob", "foobar");
+        // Create a note
+        driver.get("http://localhost:" + port + "/home");
+        homePage.addNote("Shopping list", "Eggs milk cheese");
 
-		// Log in Bob
-		driver.get("http://localhost:" + port + "/login");
-		loginPage.loginNow("Bob", "foobar");
+        // Click the success button to go back to home page
+        resultPage.successClick();
 
-		// Create a note
-		driver.get("http://localhost:" + port + "/home");
-		homePage.addNote("Shopping list", "Eggs milk cheese");
+        // Edit that note
+        homePage.editNote("Shopping list", "New list", "Apples oranges bananas");
 
-		// Click the success button to go back to home page
-		resultPage.successClick();
+        // Click the success button to go back to home page
+        resultPage.successClick();
 
-		// Verify there is one note
-		List<NoteForm> notes = homePage.getNotes();
-		Assertions.assertEquals(1, notes.size());
+        // Verify it is displayed
+        List<NoteForm> notes = homePage.getNotes();
+        Assertions.assertEquals(1, notes.size());
+        Assertions.assertEquals("New list", notes.get(0).getNoteTitle());
+        Assertions.assertEquals("Apples oranges bananas", notes.get(0).getNoteText());
+    }
 
-		// Delete that note
-		homePage.deleteNote("Shopping list");
+    /*
+    Delete a note, and verify that the note is no longer displayed
+     */
+    @Test
+    public void testDeleteNote() throws InterruptedException {
 
-		// Click the success button to go back to home page
-		resultPage.successClick();
+        // Sign up Bob
+        driver.get("http://localhost:" + port + "/signup");
+        signupPage.signupNow("Robinson", "Crusoe", "Bob", "foobar");
 
-		// Verify that there are no notes
-		List<NoteForm> emptyNotes = homePage.getNotes();
-		Assertions.assertEquals(0, emptyNotes.size());
+        // Log in Bob
+        driver.get("http://localhost:" + port + "/login");
+        loginPage.loginNow("Bob", "foobar");
 
-	}
+        // Create a note
+        driver.get("http://localhost:" + port + "/home");
+        homePage.addNote("Shopping list", "Eggs milk cheese");
 
-	// Create a set of credentials, verify they are displayed, and verify that the displayed
-	// password is encrypted
+        // Click the success button to go back to home page
+        resultPage.successClick();
 
-	// View an existing set of credentials, verify that the viewable password is unencrypted,
-	// edit the credentials, and verify that the changes are displayed.
+        // Verify there is one note
+        List<NoteForm> notes = homePage.getNotes();
+        Assertions.assertEquals(1, notes.size());
 
-	// Delete an existing set of credentials, and verify that the credentials are no longer
-	// displayed.
+        // Delete that note
+        homePage.deleteNote("Shopping list");
 
+        // Click the success button to go back to home page
+        resultPage.successClick();
+
+        // Verify that there are no notes
+        List<NoteForm> emptyNotes = homePage.getNotes();
+        Assertions.assertEquals(0, emptyNotes.size());
+    }
+
+    /*
+    Create a set of credentials, verify they are displayed, and verify that the displayed
+    password is encrypted
+     */
+    @Test
+    public void testCred1() throws InterruptedException {
+
+        // Sign up Bob
+        driver.get("http://localhost:" + port + "/signup");
+        signupPage.signupNow("Robinson", "Crusoe", "Bob", "foobar");
+
+        // Log in Bob
+        driver.get("http://localhost:" + port + "/login");
+        loginPage.loginNow("Bob", "foobar");
+
+        // Create a set of credentials
+        driver.get("http://localhost:" + port + "/home");
+        String bobsChosenPassword = "island9999";
+        homePage.addCred("mysite.com", "bobcrusoe", bobsChosenPassword);
+
+        // Click the success button to go back to home page
+        resultPage.successClick();
+
+        // Verify there is one credential displayed
+        List<CredForm> displayedCreds = homePage.getCreds();
+        Assertions.assertEquals(1, displayedCreds.size());
+
+        // Verify that the displayed password is encrypted (it should not equal the user's input)
+        String actualDisplayedPassword = displayedCreds.get(0).getCredPassword();
+        Assertions.assertNotEquals(bobsChosenPassword, actualDisplayedPassword);
+    }
+
+    /*
+    View an existing set of credentials, verify that the viewable password is unencrypted,
+    edit the credentials, and verify that the changes are displayed.
+     */
+    @Test
+    public void testCred2() throws InterruptedException {
+
+        // Sign up Bob
+        driver.get("http://localhost:" + port + "/signup");
+        signupPage.signupNow("Robinson", "Crusoe", "Bob", "foobar");
+
+        // Log in Bob
+        driver.get("http://localhost:" + port + "/login");
+        loginPage.loginNow("Bob", "foobar");
+
+        // Create a set of credentials
+        driver.get("http://localhost:" + port + "/home");
+        String bobsSite = "mysite.com";
+        String bobsUsername = "bobcrusoe";
+        String bobsFirstPassword = "island9999";
+        homePage.addCred(bobsSite, bobsUsername, bobsFirstPassword);
+
+        // Click the success button to go back to home page
+        resultPage.successClick();
+
+        // On the home page, what is the value of Bob's first password, encrypted?
+        List<CredForm> displayedCreds = homePage.getCreds();
+        String bobsFirstPasswordEncrypted = displayedCreds.get(0).getCredPassword();
+        System.out.println("bobsFirstPasswordEncrypted = " + bobsFirstPasswordEncrypted);
+
+        // Click to view that credential, and verify the unencrypted password is shown
+        String modalDisplayedPassword = homePage.viewCredPassword(bobsSite);
+        Assertions.assertEquals(bobsFirstPassword, modalDisplayedPassword);
+
+        // Edit that credential
+        String bobsSecondPassword = "shipwreck123";
+        homePage.editCred(bobsSite, bobsSite, bobsUsername, bobsSecondPassword);
+
+        // Click the success button to go back to home page
+        resultPage.successClick();
+
+        // Verify there is still just one credential displayed
+        displayedCreds = homePage.getCreds();
+        Assertions.assertEquals(1, displayedCreds.size());
+
+        // Verify that the displayed password is encrypted and changed
+        String bobsSecondPasswordEncrypted = displayedCreds.get(0).getCredPassword();
+        System.out.println("bobsSecondPasswordEncrypted = " + bobsSecondPasswordEncrypted);
+        Assertions.assertNotEquals(bobsSecondPassword, bobsSecondPasswordEncrypted);
+        Assertions.assertNotEquals(bobsFirstPasswordEncrypted, bobsSecondPasswordEncrypted);
+
+        // Click to view that credential again, and verify Bob's second, unencrypted password is shown
+        modalDisplayedPassword = homePage.viewCredPassword(bobsSite);
+        Assertions.assertEquals(bobsSecondPassword, modalDisplayedPassword);
+    }
+
+    /*
+     Delete an existing set of credentials, and verify that the credentials are no longer displayed.
+     */
+    @Test
+    public void testDeleteCred() throws InterruptedException {
+
+        // Sign up Bob
+        driver.get("http://localhost:" + port + "/signup");
+        signupPage.signupNow("Robinson", "Crusoe", "Bob", "foobar");
+
+        // Log in Bob
+        driver.get("http://localhost:" + port + "/login");
+        loginPage.loginNow("Bob", "foobar");
+
+        // Create a set of credentials
+        driver.get("http://localhost:" + port + "/home");
+        String bobsSite = "mysite.com";
+        String bobsUsername = "bobcrusoe";
+        String bobsPassword = "island9999";
+        homePage.addCred(bobsSite, bobsUsername, bobsPassword);
+
+        // Click the success button to go back to home page
+        resultPage.successClick();
+
+        // Verify there is one credential displayed
+        List<CredForm> displayedCreds = homePage.getCreds();
+        Assertions.assertEquals(1, displayedCreds.size());
+
+        // Delete that note
+        homePage.deleteCred(bobsSite);
+
+        // Click the success button to go back to home page
+        resultPage.successClick();
+
+        // Verify that there are no credentials
+        List<CredForm> emptyCreds = homePage.getCreds();
+        Assertions.assertEquals(0, emptyCreds.size());
+    }
 
 
 }

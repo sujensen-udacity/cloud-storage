@@ -1,12 +1,10 @@
 package com.udacity.jwdnd.course1.cloudstorage.controllers;
 
+import com.udacity.jwdnd.course1.cloudstorage.model.CredForm;
 import com.udacity.jwdnd.course1.cloudstorage.model.File;
 import com.udacity.jwdnd.course1.cloudstorage.model.NoteForm;
 import com.udacity.jwdnd.course1.cloudstorage.model.User;
-import com.udacity.jwdnd.course1.cloudstorage.services.FileStorageService;
-import com.udacity.jwdnd.course1.cloudstorage.services.NoteService;
-import com.udacity.jwdnd.course1.cloudstorage.services.UserService;
-import org.springframework.core.io.ByteArrayResource;
+import com.udacity.jwdnd.course1.cloudstorage.services.*;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -27,29 +25,39 @@ public class HomeController {
 
     private FileStorageService fileStorageService;
     private NoteService noteService;
+    private CredService credService;
     private UserService userService;
+    private EncryptionService encryptionService;
 
-    public HomeController(FileStorageService fileStorageService, NoteService noteService, UserService userService) {
+    public HomeController(FileStorageService fileStorageService, NoteService noteService, CredService credService,
+                          UserService userService, EncryptionService encryptionService) {
         this.fileStorageService = fileStorageService;
         this.noteService = noteService;
+        this.credService = credService;
         this.userService = userService;
+        this.encryptionService = encryptionService;
     }
 
     @GetMapping("/home")
-    public String getHomePage(@ModelAttribute("noteForm") NoteForm noteForm, Principal principal, Model model) {
-        System.out.println("In GetMapping home");
-        List<NoteForm> notes = noteService.getNotes(principal.getName());
-        System.out.println("  go through notes:");
-        for (NoteForm nf : notes) {
-            System.out.println("    note id = " + nf.getNoteId() + ", title = " + nf.getNoteTitle() + ", text = " + nf.getNoteText());
-        }
+    public String getHomePage(@ModelAttribute("noteForm") NoteForm noteForm,
+                              @ModelAttribute("credForm") CredForm credForm,
+                              Principal principal, Model model) {
 
         // Get the latest list of files
         model.addAttribute("storedFiles", fileStorageService.getFiles(principal.getName()));
-
         // Get the latest list of notes
         model.addAttribute("storedNotes", noteService.getNotes(principal.getName()));
-
+        // Get the latest list of creds
+        List<CredForm> myList = credService.getCreds(principal.getName());
+        for (CredForm cf : myList) {
+            System.out.println("HEY next cf");
+            System.out.println("...id = " + cf.getCredentialId());
+            System.out.println("...url = " + cf.getCredUrl());
+            System.out.println("...username = " + cf.getCredUsername());
+            System.out.println("...password = " + cf.getCredPassword());
+        }
+        model.addAttribute("storedCreds", credService.getCreds(principal.getName()));
+        model.addAttribute("encryptionService", encryptionService);
         return "home";
     }
 
@@ -63,20 +71,16 @@ public class HomeController {
                 .contentLength(Long.valueOf(newFile.getFileSize()))
                 .contentType(MediaType.parseMediaType(newFile.getContentType()))
                 .body(resource);
-
     }
 
     @GetMapping("/deleteFile")
     public String deleteFile(@RequestParam String fileName, Principal principal, Model model) {
 
         String resultError = null;
-
         // Get the authenticated user name
         User user = userService.getUser(principal.getName());
-
         // Delete the file for that user
         fileStorageService.deleteFile(user.getUsername(), fileName);
-
         return "result";
     }
 
@@ -84,52 +88,80 @@ public class HomeController {
     public String deleteNote(@RequestParam Integer noteId, Principal principal, Model model) {
 
         String resultError = null;
-
         // Get the authenticated user name
         User user = userService.getUser(principal.getName());
-
         // Delete the note for that user
         noteService.deleteNote(user.getUsername(), noteId);
+        return "result";
+    }
 
+    @GetMapping("/deleteCred")
+    public String deleteCred(@RequestParam Integer credId, Principal principal, Model model) {
+
+        String resultError = null;
+        // Get the authenticated user name
+        User user = userService.getUser(principal.getName());
+        // Delete the note for that user
+        credService.deleteCred(user.getUsername(), credId);
         return "result";
     }
 
     @PostMapping("/home")
     public String setHomePage(Principal principal, Model model) {
-        System.out.println("In PostMapping home");
 
         // Get the latest list of files
         model.addAttribute("storedFiles", fileStorageService.getFiles(principal.getName()));
-
         // Get the latest list of notes
         model.addAttribute("storedNotes", noteService.getNotes(principal.getName()));
-
         return "home";
     }
 
     @PostMapping("/note-add-edit")
     public String addNote(@ModelAttribute("noteForm") NoteForm noteForm, Principal principal, Model model) {
-        System.out.println("In PostMapping note-add");
-        System.out.println("  noteForm text = " + noteForm.getNoteText());
 
         // Keep track of any errors from the services, which are passed via the model to the results page
         String resultError = null;
-
         // Get the authenticated user name
         User user = userService.getUser(principal.getName());
-
         // Does the note already have an ID?
         System.out.println("check if the note has an id! " + noteForm.getNoteId());
         if (!noteForm.getNoteId().isEmpty()) {
-
             // Edit the note, catching any error as a String result.
             resultError = noteService.editNote(noteForm, user.getUsername());
         } else {
-
             // Add the note, catching any error as a String result.
             resultError = noteService.addNote(noteForm, user.getUsername());
         }
+        // Pass any errors to the model for the results page
+        if (resultError != null) {
+            model.addAttribute("resultError", resultError);
+        }
+        return "result";
+    }
 
+    @PostMapping("/cred-add-edit")
+    public String addCred(@ModelAttribute("credForm") CredForm credForm, Principal principal, Model model) {
+
+        System.out.println("HEY starting HomeController.addCred");
+        System.out.println(".. id = " + credForm.getCredentialId());
+        System.out.println(".. url = " + credForm.getCredUrl());
+        System.out.println(".. username = " + credForm.getCredUsername());
+        System.out.println(".. password = " + credForm.getCredPassword() + ", class = " + credForm.getCredPassword().getClass());
+        // Keep track of any errors from the services, which are passed via the model to the results page
+        String resultError = null;
+        // Get the authenticated user name
+        User user = userService.getUser(principal.getName());
+        // Does the cred already have an ID?
+        System.out.println("check if the cred has an id? " + credForm.getCredentialId());
+        if (!credForm.getCredentialId().isEmpty()) {
+            // Edit the cred, catching any error as a String result.
+            System.out.println("No the cred id is not empty!");
+            resultError = credService.editCred(credForm, user.getUsername());
+        } else {
+            System.out.println("YEAH the cred it is empty!");
+            // Add the note, catching any error as a String result.
+            resultError = credService.addCred(credForm, user.getUsername());
+        }
         // Pass any errors to the model for the results page
         if (resultError != null) {
             model.addAttribute("resultError", resultError);
@@ -144,15 +176,12 @@ public class HomeController {
 
         // Keep track of any errors from the services, which are passed via the model to the results page
         String resultError = null;
-
         // Get the authenticated user name
         User user = userService.getUser(principal.getName());
-
         // If the filename already exists for that user, that's an error.
         if (!fileStorageService.isFilenameAvailable(user.getUsername(), fileUpload.getOriginalFilename())) {
             resultError = "The filename already exists.";
         }
-
         // Upload the file for that user
         if (resultError == null) {
             File newFile = new File(null,
@@ -163,12 +192,10 @@ public class HomeController {
                     fileUpload.getInputStream());
             fileStorageService.uploadFile(newFile);
         }
-
         // Pass any errors to the model for the results page
         if (resultError != null) {
             model.addAttribute("resultError", resultError);
         }
-
         return "result";
     }
 }

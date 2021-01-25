@@ -8,13 +8,30 @@ import org.springframework.stereotype.Service;
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
+import java.util.Random;
 
 @Service
 public class EncryptionService {
     private Logger logger = LoggerFactory.getLogger(EncryptionService.class);
+
+    public String generateSalt() {
+
+        // Create a random string of size 16
+        StringBuilder sb = new StringBuilder();
+        Random random = new Random();
+        int x = 0;
+        while (x < 16) {
+            char randomChar = (char)(random.nextInt(26) + 'a');
+            sb.append(randomChar);
+            x += 1;
+        }
+        String salt = sb.toString();
+        return salt;
+    }
 
     public String encryptValue(String data, String key) {
         byte[] encryptedValue = null;
